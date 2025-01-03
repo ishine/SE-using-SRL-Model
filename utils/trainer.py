@@ -2,7 +2,6 @@ import torch
 
 from .progress import Bar, power_compress, power_uncompress, power_compress_return_mag
 from .scores import cal_pesq_batch, cal_stoi_batch
-from torch.nn import GroupNorm
 
 
 ######################################################################################################################
@@ -246,8 +245,6 @@ def mag_real_imag_loss_stage2_train(model, train_loader, loss_calculator, optimi
     # train
     model.train()
 
-    layer_norm = GroupNorm(1, 32, eps=1e-8)
-
     for inputs, targets, srl_latents in Bar(train_loader):
         batch_num += 1
 
@@ -255,7 +252,6 @@ def mag_real_imag_loss_stage2_train(model, train_loader, loss_calculator, optimi
         inputs = inputs.float().to(DEVICE)
         targets = targets.float().to(DEVICE)
         srl_latents = srl_latents.float().to(DEVICE)
-        srl_latents = layer_norm(srl_latents)
 
         # generator
         input_specs = model.cstft(inputs)
@@ -298,6 +294,7 @@ def mag_real_imag_loss_stage2_train(model, train_loader, loss_calculator, optimi
     writer.log_train_loss('srl guided', train_srl_guided_loss / batch_num, EPOCH)
 
     return train_loss
+
 
 
 ######################################################################################################################

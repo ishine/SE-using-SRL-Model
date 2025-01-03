@@ -1,6 +1,6 @@
 # **Causal Speech Enhancement Based on a Two-Branch Nested U-Net Architecture Using Self-Supervised Speech Embeddings**   
    
-This is an official repo of the paper "**Causal Speech Enhancement Based on a Two-Branch Nested U-Net Architecture Using Self-Supervised Speech Embeddings**," which is submitted to ICASSP2025.   
+This is an official repo of the paper "**Causal Speech Enhancement Based on a Two-Branch Nested U-Net Architecture Using Self-Supervised Speech Embeddings**," which is accepted to ICASSP2025.   
 
 **Abstract**：This paper presents a causal speech enhancement (SE) model based on a two-branch complex nested U-Net (CNUNet-TB) architecture combined with a two-stage (TS) training method that leverages speech embeddings from a large self-supervised speech representation learning (SRL) model. The proposed architecture enhances performance by simultaneously estimating complex masks and the speech spectrum, effectively handling complex speech data. The SE model is initially trained by fusing the self-supervised speech embeddings with the model’s latent vectors, which are then stored for the second stage of training. In the second stage, the SE model is trained to replicate these latent vectors without relying on the SRL model, ensuring causality and eliminating the need for the SRL model during inference. Experimental results demonstrate that the proposed CNUNet-TB-TS effectively replicates the stored latent vectors with strong speaker representation, achieving superior performance compared to recent causal SE models.
 
