@@ -77,9 +77,13 @@ with torch.no_grad():
         inputs = inputs.float().to(DEVICE)
         targets = targets.float().to(DEVICE)
 
+        with torch.no_grad():
+              all_hs, all_hs_len = srl_model(targets, torch.LongTensor([inputs.size(-1) * opt.batch_size]))
+        hs, _ = featurizer(all_hs, all_hs_len)
+          
         input_specs = model.cstft(inputs)
         input_real, input_imag = utils.power_compress(input_specs, cut_len=opt.fft_len // 2 + 1)
-        out_real, out_imag, _, srl_guided_r, srl_guided_i = model.test_interface(input_real, input_imag)
+        out_real, out_imag, _, srl_guided_r, srl_guided_i = model.test_interface(input_real, input_imag, hs)
 
         srl_guided_r, srl_guided_i = srl_guided_r[0].cpu().detach(), srl_guided_i[0].cpu().detach()
 
