@@ -404,13 +404,11 @@ class CDSCONV(nn.Module):
 class CTFA(nn.Module):
     def __init__(self, in_ch, out_ch=1, time_seq=32, kernel_size=17):
         super(CTFA, self).__init__()
-        padding = kernel_size // 2
-
         # time attention
         self.time_avg_pool = nn.AdaptiveAvgPool1d(1)
-        self.time_conv1 = nn.Conv1d(in_ch, out_ch, kernel_size=kernel_size, padding=padding)
+        self.time_conv1 = nn.Conv1d(in_ch, out_ch, kernel_size=kernel_size, padding=0)
         self.time_relu = nn.ReLU()
-        self.time_conv2 = nn.Conv1d(out_ch, out_ch, kernel_size=kernel_size, padding=padding)
+        self.time_conv2 = nn.Conv1d(out_ch, out_ch, kernel_size=kernel_size, padding=0)
         self.time_sigmoid = nn.Sigmoid()
 
         # frequency attention
@@ -421,7 +419,8 @@ class CTFA(nn.Module):
         self.freq_sigmoid = nn.Sigmoid()
 
         # for real-time
-        self.padd = time_seq - 1
+        self.time_padd = kernel_size - 1
+        self.freq_padd = time_seq - 1
 
     def forward(self, x):
         B, C, D, T = x.size()
@@ -431,15 +430,17 @@ class CTFA(nn.Module):
         Z_T = Z_T.reshape([B, C * T, D])
         TA = self.time_avg_pool(Z_T)  # [B, C*T, 1]
         TA = TA.reshape([B, C, T])
+        TA = functional.pad(TA, [self.time_padd, 0])
         TA = self.time_conv1(TA)
         TA = self.time_relu(TA)
+        TA = functional.pad(TA, [self.time_padd, 0])
         TA = self.time_conv2(TA)
         TA = self.time_sigmoid(TA)
         TA = TA.reshape([B, 1, 1, T]).expand(B, C, D, T)
 
         # frequency attention
-        x_pad = functional.pad(x, [self.padd, 0, 0, 0])
-        Z_F = x_pad.reshape([B, C * D, T + self.padd])
+        x_pad = functional.pad(x, [self.freq_padd, 0, 0, 0])
+        Z_F = x_pad.reshape([B, C * D, T + self.freq_padd])
         FA = self.freq_avg_pool(Z_F)  # [B, C*F, T]
         FA = FA.reshape([B, C, D, T])
         FA = self.freq_conv1(FA)
